@@ -18,15 +18,26 @@ function CreateCommunity() {
       const formData = new FormData();
       formData.append('name', name);
       formData.append('description', description);
-      formData.append('profileImage', profileImage);
-      formData.append('bannerImage', bannerImage);
+      if (profileImage) {
+        formData.append('profileImage', profileImage, profileImage.name);
+      }
+      if (bannerImage) {
+        formData.append('bannerImage', bannerImage, bannerImage.name);
+      }
       formData.append('securityQuestion', securityQuestion);
       formData.append('securityAnswer', securityAnswer);
+
+      console.log('FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
 
       const response = await createCommunity(formData);
       navigate(`/community/${response._id}`);
     } catch (err) {
-      setError('Failed to create community');
+      console.error('Error creating community:', err);
+      console.error('Error response:', err.response);
+      setError(err.response?.data?.message || 'Failed to create community');
     }
   };
 
@@ -47,12 +58,12 @@ function CreateCommunity() {
         </div>
         <div>
           <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700">Profile Image</label>
-          <input type="file" id="profileImage" onChange={(e) => setProfileImage(e.target.files[0])} required
+          <input type="file" id="profileImage" onChange={(e) => setProfileImage(e.target.files[0])} 
             className="mt-1 block w-full" />
         </div>
         <div>
           <label htmlFor="bannerImage" className="block text-sm font-medium text-gray-700">Banner Image</label>
-          <input type="file" id="bannerImage" onChange={(e) => setBannerImage(e.target.files[0])} required
+          <input type="file" id="bannerImage" onChange={(e) => setBannerImage(e.target.files[0])} 
             className="mt-1 block w-full" />
         </div>
         <div>

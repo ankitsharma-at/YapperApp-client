@@ -38,7 +38,15 @@ function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Nearby Communities</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Nearby Communities</h1>
+        <Link 
+          to="/create-community" 
+          className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white font-bold py-2 px-4 rounded-lg border-2 border-white shadow-md hover:shadow-lg transition duration-300"
+        >
+          Create New Community
+        </Link>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {communities.map(community => (
           <div key={community._id} className="bg-white rounded-lg shadow-md p-6">
@@ -51,9 +59,6 @@ function Dashboard() {
           </div>
         ))}
       </div>
-      <Link to="/create-community" className="mt-8 inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300">
-        Create New Community
-      </Link>
     </div>
   );
 }
