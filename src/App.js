@@ -9,6 +9,7 @@ import CommunityView from './components/CommunityView';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import PostDetail from './components/PostDetail';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <CommunityView />
               </PrivateRoute>
             } />
+            <Route path="/post/:postId" element={<PostDetail />} />
           </Routes>
         </div>
       </Router>

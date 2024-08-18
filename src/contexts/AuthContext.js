@@ -31,9 +31,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-    localStorage.setItem('token', response.data.token);
-    setCurrentUser(response.data.user);
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.user._id); // Add this line
+      setCurrentUser(response.data.user);
+      return response; // Return the response
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error; // Rethrow the error so it can be caught in the component
+    }
   };
 
   const signup = async (username, email, password) => {

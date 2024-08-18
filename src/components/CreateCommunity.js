@@ -19,24 +19,18 @@ function CreateCommunity() {
       formData.append('name', name);
       formData.append('description', description);
       if (profileImage) {
-        formData.append('profileImage', profileImage, profileImage.name);
+        formData.append('profileImage', profileImage);
       }
       if (bannerImage) {
-        formData.append('bannerImage', bannerImage, bannerImage.name);
+        formData.append('bannerImage', bannerImage);
       }
       formData.append('securityQuestion', securityQuestion);
       formData.append('securityAnswer', securityAnswer);
-
-      console.log('FormData contents:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
 
       const response = await createCommunity(formData);
       navigate(`/community/${response._id}`);
     } catch (err) {
       console.error('Error creating community:', err);
-      console.error('Error response:', err.response);
       setError(err.response?.data?.message || 'Failed to create community');
     }
   };

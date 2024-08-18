@@ -11,10 +11,12 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || 'Failed to log in');
     }
   };

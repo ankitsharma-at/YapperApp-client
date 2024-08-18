@@ -18,6 +18,7 @@ function Signup() {
         password,
       });
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.user._id);
       navigate('/dashboard');
     } catch (err) {
       setError('Error creating account');
