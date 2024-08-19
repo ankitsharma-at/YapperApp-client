@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const createCommunity = async (formData, token) => {
   try {
-    const response = await axios.post('http://localhost:5000/api/community', formData, {
+    const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${token}`

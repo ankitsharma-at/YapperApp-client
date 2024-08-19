@@ -11,7 +11,7 @@ function JoinCommunity() {
     const joinCommunity = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.post(`http://localhost:5000/api/community/join/${inviteCode}`, {}, {
+        const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community/join/${inviteCode}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         navigate(`/community/${response.data.communityId}`);

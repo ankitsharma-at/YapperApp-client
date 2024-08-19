@@ -13,8 +13,8 @@ function Dashboard() {
         const token = localStorage.getItem('token');
         console.log('Token:', token); // Log the token
         const [allCommunitiesResponse, userCommunitiesResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/community"),
-          axios.get("http://localhost:5000/api/community/user", {
+          axios.get(`${process.env.REACT_APP_SERVER_URL}/api/community`),
+          axios.get(`${process.env.REACT_APP_SERVER_URL}/api/community/user`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);

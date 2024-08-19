@@ -16,7 +16,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
   const handleLike = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:5000/api/post/${post._id}/like`, {}, {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}/like`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -34,7 +34,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
   const handleDislike = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:5000/api/post/${post._id}/dislike`, {}, {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}/dislike`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -56,7 +56,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
   const handleSaveEdit = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`http://localhost:5000/api/post/${post._id}`, 
+      const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}`, 
         { content: editedContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -74,7 +74,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
     try {
       const token = localStorage.getItem('token');
       console.log('Attempting to delete post:', post._id);
-      await axios.delete(`http://localhost:5000/api/post/${post._id}`, {
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (deletePost) {

@@ -21,7 +21,7 @@ function CommunityView() {
   useEffect(() => {
     const fetchCommunity = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/community/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/community/${id}`);
         setCommunity(response.data);
         setEditedCommunity(response.data);
         setPosts(response.data.posts || []);
@@ -44,7 +44,7 @@ function CommunityView() {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await axios.post(`http://localhost:5000/api/post/${id}`, {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${id}`, {
         title: newPost.title,
         content: newPost.content,
         isAnonymous: newPost.isAnonymous
@@ -70,7 +70,7 @@ function CommunityView() {
   const deletePost = async (postId) => {
     try {
       console.log('Deleting post:', postId);
-      await axios.delete(`http://localhost:5000/api/post/${postId}`, {
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/api/post/${postId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
@@ -91,7 +91,7 @@ function CommunityView() {
     }
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`http://localhost:5000/api/community/${id}`, editedCommunity, {
+      const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/api/community/${id}`, editedCommunity, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCommunity(response.data);
@@ -110,7 +110,7 @@ function CommunityView() {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/community/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/api/community/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/dashboard');

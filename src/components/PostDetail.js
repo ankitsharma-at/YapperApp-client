@@ -13,7 +13,7 @@ function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/post/${postId}`);
+        const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/api/post/${postId}`);
         setPost(response.data);
       } catch (err) {
         setError('Failed to fetch post');
@@ -25,7 +25,7 @@ function PostDetail() {
   const createComment = async (postId, content) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:5000/api/post/${postId}/comment`, 
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${postId}/comment`, 
         { content },
         {
           headers: {
@@ -59,7 +59,7 @@ function PostDetail() {
   const handleDeleteComment = async (commentId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/post/${postId}/comment/${commentId}`, {
+      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/api/post/${postId}/comment/${commentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get('http://localhost:5000/api/auth/me', {
+      axios.get(`${process.env.REACT_APP_SERVER_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/login`, { email, password });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.user._id); // Add this line
       setCurrentUser(response.data.user);
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
   };
 
   const signup = async (username, email, password) => {
-    const response = await axios.post('http://localhost:5000/api/auth/signup', { username, email, password });
+    const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/signup`, { username, email, password });
     localStorage.setItem('token', response.data.token);
     setCurrentUser(response.data.user);
   };
