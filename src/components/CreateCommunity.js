@@ -7,9 +7,8 @@ function CreateCommunity() {
   const [description, setDescription] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
-  const [securityQuestion, setSecurityQuestion] = useState('');
-  const [securityAnswer, setSecurityAnswer] = useState('');
   const [error, setError] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,10 +23,10 @@ function CreateCommunity() {
       if (bannerImage) {
         formData.append('bannerImage', bannerImage);
       }
-      formData.append('securityQuestion', securityQuestion);
-      formData.append('securityAnswer', securityAnswer);
+      formData.append('isPrivate', isPrivate);
 
-      const response = await createCommunity(formData);
+      const token = localStorage.getItem('token');
+      const response = await createCommunity(formData, token);
       navigate(`/community/${response._id}`);
     } catch (err) {
       console.error('Error creating community:', err);
@@ -61,14 +60,16 @@ function CreateCommunity() {
             className="mt-1 block w-full" />
         </div>
         <div>
-          <label htmlFor="securityQuestion" className="block text-sm font-medium text-gray-700">Security Question</label>
-          <input type="text" id="securityQuestion" value={securityQuestion} onChange={(e) => setSecurityQuestion(e.target.value)} required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-        <div>
-          <label htmlFor="securityAnswer" className="block text-sm font-medium text-gray-700">Security Answer</label>
-          <input type="text" id="securityAnswer" value={securityAnswer} onChange={(e) => setSecurityAnswer(e.target.value)} required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+          <label htmlFor="isPrivate" className="block text-sm font-medium text-gray-700">Community Privacy</label>
+          <select
+            id="isPrivate"
+            value={isPrivate}
+            onChange={(e) => setIsPrivate(e.target.value === 'true')}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="false">Public</option>
+            <option value="true">Private</option>
+          </select>
         </div>
         <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-300">
           Create Community

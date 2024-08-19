@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import PostDetail from './components/PostDetail';
+import JoinCommunity from './components/JoinCommunity';
 
 function App() {
   return (
@@ -37,6 +38,11 @@ function App() {
               </PrivateRoute>
             } />
             <Route path="/post/:postId" element={<PostDetail />} />
+            <Route path="/join/:inviteCode" element={
+              <PrivateRoute>
+                <JoinCommunity />
+              </PrivateRoute>
+            } />
           </Routes>
         </div>
       </Router>
