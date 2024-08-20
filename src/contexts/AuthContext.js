@@ -22,7 +22,8 @@ export function AuthProvider({ children }) {
         setCurrentUser(response.data);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error fetching current user:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         setLoading(false);

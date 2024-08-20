@@ -11,8 +11,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const token = localStorage.getItem('token');
-        console.log('Token:', token); // Log the token
+        const token = localStorage.getItem('token');// Log the token
         const [allCommunitiesResponse, userCommunitiesResponse] = await Promise.all([
           axios.get(`${process.env.REACT_APP_SERVER_URL}/api/community`),
           axios.get(`${process.env.REACT_APP_SERVER_URL}/api/community/user`, {
