@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import CommunityCard from './CommunityCard';
 
 function Dashboard() {
   const [communities, setCommunities] = useState([]);
@@ -44,30 +45,20 @@ function Dashboard() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Your Communities</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {userCommunities.map(community => (
-            <div key={community._id} className="bg-white rounded-lg shadow-md p-6">
-              <img src={community.profileImage} alt={community.name} className="w-full h-40 object-cover rounded-t-lg mb-4" />
-              <h2 className="text-xl font-bold mb-2">{community.name}</h2>
-              <p className="text-gray-600 mb-4">{community.description}</p>
-              <Link to={`/community/${community._id}`} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
-                View Community
-              </Link>
-            </div>
-          ))}
-        </div>
+        {userCommunities.length === 0 ? (
+          <p className="text-gray-600">Find yourself a new community to Join.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {userCommunities.map(community => (
+              <CommunityCard key={community._id} community={community} isMember={true} />
+            ))}
+          </div>
+        )}
       </div>
       <h2 className="text-2xl font-bold mb-4">Public Communities</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {communities.map(community => (
-          <div key={community._id} className="bg-white rounded-lg shadow-md p-6">
-            <img src={community.profileImage} alt={community.name} className="w-full h-40 object-cover rounded-t-lg mb-4" />
-            <h2 className="text-xl font-bold mb-2">{community.name}</h2>
-            <p className="text-gray-600 mb-4">{community.description}</p>
-            <Link to={`/community/${community._id}`} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
-              View Community
-            </Link>
-          </div>
+          <CommunityCard key={community._id} community={community} isMember={false} />
         ))}
       </div>
     </div>

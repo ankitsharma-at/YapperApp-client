@@ -13,7 +13,8 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    const userId = localStorage.getItem('userId');
+    if (token && userId) {
       axios.get(`${process.env.REACT_APP_SERVER_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -23,6 +24,7 @@ export function AuthProvider({ children }) {
       })
       .catch(() => {
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
         setLoading(false);
       });
     } else {
@@ -56,6 +58,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    setCurrentUser,
     login,
     signup,
     logout

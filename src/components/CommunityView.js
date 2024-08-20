@@ -17,6 +17,7 @@ function CommunityView() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(localStorage.getItem('userId'));
   const [inviteCode, setInviteCode] = useState('');
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
     const fetchCommunity = async () => {
@@ -31,13 +32,14 @@ function CommunityView() {
         } else {
           console.error('Invite code not found for community');
         }
+        setIsMember(response.data.members.includes(userId));
       } catch (err) {
         console.error('Failed to fetch community:', err);
         setError('Failed to fetch community');
       }
     };
     fetchCommunity();
-  }, [id]);
+  }, [id, userId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -134,52 +136,86 @@ function CommunityView() {
     }
   };
 
+  const handleJoinCommunity = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community/${id}/join`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsMember(true);
+      // Refresh user communities in Dashboard
+      // You might want to use a global state management solution like Redux or Context API for this
+      // For now, we'll just reload the page to reflect the changes
+      window.location.reload();
+    } catch (err) {
+      console.error('Error joining community:', err);
+      setError('Failed to join community: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   if (!community) return <div className="text-center">Loading...</div>;
 
   const isAdmin = userId && community.admin === userId;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="relative">
-        <img src={community.bannerImage} alt={community.name} className="w-full h-48 object-cover rounded-t-lg" />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-          <h1 className="text-3xl font-bold text-white">{community.name}</h1>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div className="relative">
+          <img src={community.bannerImage} alt={community.name} className="w-full h-64 object-cover" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 -mb-16 ml-8">
+            <img src={community.profileImage} alt={community.name} className="w-full h-full rounded-full border-4 border-white object-cover" />
+          </div>
+        </div>
+        <div className="mt-20 p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold">{community.name}</h1>
+              <p className="text-gray-600 mt-2">{community.description}</p>
+            </div>
+            <div className="flex space-x-2">
+              {isAdmin && (
+                <>
+                  {isEditing ? (
+                    <button onClick={handleSaveEdit} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+                      Save Changes
+                    </button>
+                  ) : (
+                    <button onClick={handleEditCommunity} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                      Edit Community
+                    </button>
+                  )}
+                  <button onClick={handleDeleteCommunity} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                    Delete Community
+                  </button>
+                </>
+              )}
+              <button onClick={handleShareCommunity} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+                Share Community
+              </button>
+              {!isMember && (
+                <button onClick={handleJoinCommunity} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                  Join Community
+                </button>
+              )}
+            </div>
+          </div>
+          {isEditing && (
+            <div className="mt-4">
+              <input
+                type="text"
+                value={editedCommunity.name}
+                onChange={(e) => setEditedCommunity({...editedCommunity, name: e.target.value})}
+                className="w-full px-3 py-2 border rounded-md mb-2"
+              />
+              <textarea
+                value={editedCommunity.description}
+                onChange={(e) => setEditedCommunity({...editedCommunity, description: e.target.value})}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+          )}
         </div>
       </div>
-      {isAdmin && (
-        <div className="mt-4 flex justify-end space-x-2">
-          {isEditing ? (
-            <button onClick={handleSaveEdit} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
-              Save Changes
-            </button>
-          ) : (
-            <button onClick={handleEditCommunity} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              Edit Community
-            </button>
-          )}
-          <button onClick={handleDeleteCommunity} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-            Delete Community
-          </button>
-          <button onClick={handleShareCommunity} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
-            Share Community
-          </button>
-        </div>
-      )}
-      {isEditing && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={editedCommunity.name}
-            onChange={(e) => setEditedCommunity({...editedCommunity, name: e.target.value})}
-            className="w-full px-3 py-2 border rounded-md"
-          />
-          <textarea
-            value={editedCommunity.description}
-            onChange={(e) => setEditedCommunity({...editedCommunity, description: e.target.value})}
-            className="w-full px-3 py-2 border rounded-md mt-2"
-          />
-        </div>
-      )}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Create a New Post</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
