@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
 function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
-  console.log('Post data:', post);
   const [isLiked, setIsLiked] = useState(post.likedBy.includes(localStorage.getItem('userId')));
   const [isDisliked, setIsDisliked] = useState(post.dislikedBy.includes(localStorage.getItem('userId')));
   const [isEditing, setIsEditing] = useState(false);
@@ -108,7 +107,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       )}
       <div className="flex justify-between items-center">
         <p className="text-gray-500 text-sm">
-          Posted by {post.isAnonymous ? 'Anonymous' : (post.author?.username || 'Unknown')}
+          Posted by {post.isAnonymous ? 'Anonymous' : (post.author?.username || 'Unknown')} on {new Date(post.createdAt).toLocaleString()}
         </p>
         {!isDetailView && (
           <Link to={`/post/${post._id}`} className="text-blue-500 hover:underline">
