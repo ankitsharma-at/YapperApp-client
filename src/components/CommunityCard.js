@@ -6,12 +6,20 @@ function CommunityCard({ community, isMember }) {
   const handleJoin = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
       await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community/${community._id}/join`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       window.location.reload();
     } catch (err) {
       console.error('Error joining community:', err);
+      if (err.response && err.response.status === 401) {
+        // Handle unauthorized error (e.g., redirect to login)
+        window.location.href = '/login';
+      }
     }
   };
 
@@ -27,12 +35,12 @@ function CommunityCard({ community, isMember }) {
         <h2 className="text-xl font-bold mb-2">{community.name}</h2>
         <p className="text-gray-600 mb-4">{community.description}</p>
         <div className="flex justify-between items-center">
-          <Link to={`/community/${community._id}`} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
+          <Link to={`/community/${community._id}`} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
             View Community
           </Link>
           {!isMember && (
-            <button onClick={handleJoin} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300">
-              Join
+            <button onClick={handleJoin} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300">
+              Join Community
             </button>
           )}
         </div>

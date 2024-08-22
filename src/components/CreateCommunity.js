@@ -10,10 +10,12 @@ function CreateCommunity() {
   const [bannerImage, setBannerImage] = useState(null);
   const [error, setError] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append('name', name);
@@ -32,6 +34,8 @@ function CreateCommunity() {
     } catch (err) {
       console.error('Error creating community:', err);
       setError(err.response?.data?.message || 'Failed to create community');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,8 +79,8 @@ function CreateCommunity() {
                 <option value="true">Private</option>
               </select>
             </div>
-            <button type="submit" className="w-full bg-black text-white font-bold py-2 px-4 rounded-md transition duration-300 hover:bg-caribbean-green hover:text-black hover:shadow-lg hover:shadow-caribbean-green/50">
-              Create Community
+            <button type="submit" disabled={isLoading} className="w-full bg-black text-white font-bold py-2 px-4 rounded-md transition duration-300 hover:bg-caribbean-green hover:text-black hover:shadow-lg hover:shadow-caribbean-green/50">
+              {isLoading ? 'Creating...' : 'Create Community'}
             </button>
           </form>
         </div>

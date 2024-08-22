@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -14,11 +14,15 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const userData = await login(emailOrUsername, password);
+      if (userData.user) {
+        navigate('/dashboard');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Failed to log in');
+      setError(err.response?.data?.message || err.message || 'Failed to log in');
     }
   };
 
@@ -31,16 +35,16 @@ function Login() {
           {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-white text-sm font-bold mb-2" htmlFor="email">
-                Email
+              <label className="block text-white text-sm font-bold mb-2" htmlFor="emailOrUsername">
+                Email or Username
               </label>
               <input
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green"
-                id="email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="emailOrUsername"
+                type="text"
+                placeholder="Email or Username"
+                value={emailOrUsername}
+                onChange={(e) => setEmailOrUsername(e.target.value)}
                 required
               />
             </div>

@@ -33,16 +33,20 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (emailOrUsername, password) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/login`, { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userId', response.data.user._id); // Add this line
-      setCurrentUser(response.data.user);
-      return response; // Return the response
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/login`, { emailOrUsername, password });
+      if (response.data && response.data.token && response.data.user) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userId', response.data.user._id);
+        setCurrentUser(response.data.user);
+        return response.data;
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      throw error; // Rethrow the error so it can be caught in the component
+      throw error;
     }
   };
 

@@ -6,7 +6,7 @@ import Post from './Post';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faShare, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faShare, faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 function CommunityView() {
   const [community, setCommunity] = useState(null);
@@ -182,20 +182,24 @@ function CommunityView() {
               <div className="flex space-x-2">
                 {isAdmin && (
                   <>
-                    <button onClick={handleEditCommunity} className="text-gray-600 hover:text-blue-500 transition-colors">
+                    <button onClick={handleEditCommunity} className="text-gray-600 hover:text-blue-500 transition-colors" title='Edit Community'>
                       <FontAwesomeIcon icon={faEdit} size="lg" />
                     </button>
-                    <button onClick={handleDeleteCommunity} className="text-gray-600 hover:text-red-500 transition-colors">
+                    <button onClick={handleDeleteCommunity} className="text-gray-600 hover:text-red-500 transition-colors" title='Delete Community'>
                       <FontAwesomeIcon icon={faTrash} size="lg" />
                     </button>
                   </>
                 )}
-                <button onClick={handleShareCommunity} className="text-gray-600 hover:text-green-500 transition-colors">
+                <button onClick={handleShareCommunity} className="text-gray-600 hover:text-green-500 transition-colors" title='Share Community'>
                   <FontAwesomeIcon icon={faShare} size="lg" />
                 </button>
                 {!isMember && (
-                  <button onClick={handleJoinCommunity} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    Join Community
+                  <button 
+                    onClick={handleJoinCommunity} 
+                    className="text-purple-600 hover:text-purple-700 transition-colors"
+                    title="Join Community"
+                  >
+                    <FontAwesomeIcon icon={faUserPlus} size="lg" />
                   </button>
                 )}
               </div>

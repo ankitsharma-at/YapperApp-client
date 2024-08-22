@@ -11,6 +11,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
   const { currentUser } = useAuth();
 
   const isAuthor = post.author && localStorage.getItem('userId') === post.author._id;
+  const authorName = post.isAnonymous ? 'Anonymous' : (post.author ? post.author.username : 'Unknown');
 
   const handleLike = async () => {
     try {
@@ -25,6 +26,8 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       if (updatePost) {
         updatePost(response.data);
       }
+     // window.location.reload();
+     // window.scrollTo(0, window.pageYOffset);
     } catch (error) {
       console.error('Error liking post:', error);
     }
@@ -43,6 +46,8 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       if (updatePost) {
         updatePost(response.data);
       }
+      //window.location.reload();
+      //window.scrollTo(0, window.pageYOffset);
     } catch (error) {
       console.error('Error disliking post:', error);
     }
@@ -107,7 +112,7 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       )}
       <div className="flex justify-between items-center">
         <p className="text-gray-500 text-sm">
-          Posted by {post.isAnonymous ? 'Anonymous' : (post.author?.username || 'Unknown')} on {new Date(post.createdAt).toLocaleString()}
+          Posted by {authorName} on {new Date(post.createdAt).toLocaleString()}
         </p>
         {!isDetailView && (
           <Link to={`/post/${post._id}`} className="text-blue-500 hover:underline">
