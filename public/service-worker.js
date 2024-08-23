@@ -10,8 +10,8 @@ self.addEventListener('install', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/logo192.png',
-      badge: '/logo192.png'
+      icon: '/logo-yapper-sm.jpg',
+      badge: '/logo-yapper-sm.jpg'
     };
   
     event.waitUntil(
