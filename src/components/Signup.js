@@ -68,7 +68,11 @@ function Signup() {
       navigate('/dashboard');
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message);
+        if (err.response.data.message === 'Invalid email address') {
+          setEmailError('Please enter a valid email address');
+        } else {
+          setError(err.response.data.message);
+        }
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
