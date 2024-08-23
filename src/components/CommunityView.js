@@ -61,9 +61,9 @@ function CommunityView() {
         },
       });
       console.log('New post created:', response.data);
-      setPosts(prevPosts => [response.data, ...prevPosts]);
       setNewPost({ title: '', content: '', isAnonymous: false });
       setShowCreatePost(false);
+      window.location.reload(); // Refresh the page
     } catch (err) {
       console.error('Error creating post:', err);
       setError('Failed to create post: ' + (err.response?.data?.message || err.message));
@@ -72,6 +72,7 @@ function CommunityView() {
 
   const updatePost = (updatedPost) => {
     setPosts(posts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    window.location.reload(); // Refresh the page
   };
 
   const deletePost = async (postId) => {

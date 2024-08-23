@@ -33,12 +33,12 @@ function CommunityCard({ community, isMember }) {
       <div className="p-6 pt-12">
         <h2 className="text-xl font-bold mb-2">{community.name}</h2>
         <p className="text-gray-600 mb-4">{community.description}</p>
-        <div className="flex justify-between items-center">
-          <Link to={`/community/${community._id}`} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2">
+          <Link to={`/community/${community._id}`} className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300 text-center">
             View Community
           </Link>
           {!isMember && (
-            <button onClick={handleJoin} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300">
+            <button onClick={handleJoin} className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300">
               Join Community
             </button>
           )}

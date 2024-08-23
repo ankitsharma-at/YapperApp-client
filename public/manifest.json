@@ -8,13 +8,13 @@
       "type": "image/jpg"
     },
     {
-      "src": "logo-yapper-large.png",
-      "type": "image/png",
+      "src": "logo-yapper-sm.jpg",
+      "type": "image/jpg",
       "sizes": "192x192"
     },
     {
-      "src": "logo-yapper-large.png",
-      "type": "image/png",
+      "src": "logo-yapper-sm.jpg",
+      "type": "image/jpg",
       "sizes": "512x512"
     }
   ],

@@ -7,11 +7,27 @@ function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const validateInputs = () => {
+    if (!emailOrUsername.trim()) {
+      setError('Email or username is required');
+      return false;
+    }
+    if (!password) {
+      setError('Password is required');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateInputs()) return;
+
+    setIsLoading(true);
     setError('');
     try {
       const userData = await login(emailOrUsername, password);
@@ -22,7 +38,9 @@ function Login() {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to log in');
+      setError(err.response?.data?.message || 'Failed to log in. Please check your credentials and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,8 +83,9 @@ function Login() {
             <button
               className="w-full bg-black text-white font-bold py-2 px-4 rounded-md transition duration-300 hover:bg-caribbean-green hover:text-black hover:shadow-lg hover:shadow-caribbean-green/50"
               type="submit"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
           <p className="mt-4 text-center text-gray-600">
