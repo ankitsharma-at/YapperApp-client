@@ -17,7 +17,6 @@ function CommunityCard({ community, isMember }) {
     } catch (err) {
       console.error('Error joining community:', err);
       if (err.response && err.response.status === 401) {
-        // Handle unauthorized error (e.g., redirect to login)
         window.location.href = '/login';
       }
     }

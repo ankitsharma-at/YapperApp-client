@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -11,8 +11,22 @@ import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import PostDetail from './components/PostDetail';
 import JoinCommunity from './components/JoinCommunity';
+import AppLaunch from './components/AppLaunch';
 
 function App() {
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      window.deferredPrompt = e;
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <Router>
@@ -43,6 +57,7 @@ function App() {
                 <JoinCommunity />
               </PrivateRoute>
             } />
+            <Route path="/app-launch" element={<AppLaunch />} />
           </Routes>
         </div>
       </Router>

@@ -148,9 +148,6 @@ function CommunityView() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsMember(true);
-      // Refresh user communities in Dashboard
-      // You might want to use a global state management solution like Redux or Context API for this
-      // For now, we'll just reload the page to reflect the changes
       window.location.reload();
     } catch (err) {
       console.error('Error joining community:', err);

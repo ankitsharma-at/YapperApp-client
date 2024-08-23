@@ -15,6 +15,65 @@ function Dashboard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [showNotificationCarousel, setShowNotificationCarousel] = useState(false);
+
+  useEffect(() => {
+    const checkNotificationPermission = async () => {
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        setShowNotificationCarousel(true);
+      }
+    };
+    checkNotificationPermission();
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          console.log('Notification permission granted');
+          setShowNotificationCarousel(false);
+          // Subscribe the user to push notifications
+          await subscribeToPushNotifications();
+        } else {
+          console.log('Notification permission denied');
+          setShowNotificationCarousel(false);
+        }
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+      }
+    }
+  };
+
+  const subscribeToPushNotifications = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: process.env.REACT_APP_VAPID_PUBLIC_KEY
+      });
+      
+      // Send the subscription to your server
+      await sendSubscriptionToServer(subscription);
+      
+      console.log('User is subscribed to push notifications');
+    } catch (error) {
+      console.error('Failed to subscribe the user: ', error);
+    }
+  };
+
+  const sendSubscriptionToServer = async (subscription) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/notifications/subscribe`, 
+        { subscription },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('Subscription sent to server successfully');
+    } catch (error) {
+      console.error('Error sending subscription to server:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchCommunities = async () => {
@@ -50,6 +109,28 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {showNotificationCarousel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h2 className="text-2xl font-bold mb-4">Enable Notifications</h2>
+            <p className="mb-6">Stay updated with the latest posts and activities in your communities.</p>
+            <div className="flex justify-between">
+              <button
+                onClick={requestNotificationPermission}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Allow
+              </button>
+              <button
+                onClick={() => setShowNotificationCarousel(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+              >
+                Deny
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

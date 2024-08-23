@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import bigScreenImage from '../assets/download.svg';
 import smallScreenImage from '../assets/download(1).svg';
 
 function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+      setDeferredPrompt(null);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white bg-home-image">
@@ -19,18 +44,34 @@ function Home() {
             <Link to="/" className="hover:text-caribbean-green transition-colors">Contact</Link>
           </div>
           
-          <Link to="/signup" className="hidden md:inline-block bg-caribbean-green text-black font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition duration-300">
-            Register
-          </Link>
+          <div className="hidden md:flex space-x-2">
+            <button
+              onClick={handleInstall}
+              className="bg-caribbean-green text-black font-bold py-2 px-4 rounded-lg hover:bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 hover:text-white transition duration-300"
+            >
+              Install
+            </button>
+            <Link to="/signup" className="bg-caribbean-green text-black font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition duration-300">
+              Register
+            </Link>
+          </div>
           
-          <button 
-            className="md:hidden text-caribbean-green"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          <div className="md:hidden flex items-center space-x-2">
+            <button
+              onClick={handleInstall}
+              className="bg-caribbean-green text-black font-bold py-2 px-4 rounded-lg hover:bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 hover:text-white transition duration-300"
+            >
+              Install
+            </button>
+            <button 
+              className="text-caribbean-green"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
         </div>
         
         {isMobileMenuOpen && (
