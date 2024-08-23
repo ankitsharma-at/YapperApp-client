@@ -6,7 +6,7 @@ import Post from './Post';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faShare, faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faShare, faPlus, faUserPlus, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 function CommunityView() {
   const [community, setCommunity] = useState(null);
@@ -128,18 +128,35 @@ function CommunityView() {
     }
   };
 
-  const handleShareCommunity = () => {
+  const handleShareCommunity = async () => {
     if (community && community.inviteCode) {
       const inviteLink = `${window.location.origin}/join/${community.inviteCode}`;
-      navigator.clipboard.writeText(inviteLink).then(() => {
-        alert('Invite link copied to clipboard!');
-      }, (err) => {
-        console.error('Could not copy text: ', err);
-      });
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `Join ${community.name} on YapperApp`,
+            text: `I invite you to join our community on YapperApp!`,
+            url: inviteLink
+          });
+        } catch (err) {
+          console.error('Error sharing:', err);
+          fallbackCopyToClipboard(inviteLink);
+        }
+      } else {
+        fallbackCopyToClipboard(inviteLink);
+      }
     } else {
       console.error('Invite code not available');
       setError('Unable to generate invite link. Please try again later.');
     }
+  };
+
+  const fallbackCopyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Invite link copied to clipboard!');
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+    });
   };
 
   const handleJoinCommunity = async () => {
@@ -153,6 +170,20 @@ function CommunityView() {
     } catch (err) {
       console.error('Error joining community:', err);
       setError('Failed to join community: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleLeaveCommunity = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community/${id}/leave`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsMember(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error leaving community:', err);
+      setError('Failed to leave community: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -198,6 +229,15 @@ function CommunityView() {
                     title="Join Community"
                   >
                     <FontAwesomeIcon icon={faUserPlus} size="lg" />
+                  </button>
+                )}
+                {isMember && !isAdmin && (
+                  <button 
+                    onClick={handleLeaveCommunity} 
+                    className="text-red-600 hover:text-red-700 transition-colors"
+                    title="Leave Community"
+                  >
+                    <FontAwesomeIcon icon={faSignOutAlt} size="lg" />
                   </button>
                 )}
               </div>
