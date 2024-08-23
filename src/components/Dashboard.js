@@ -107,6 +107,21 @@ function Dashboard() {
     <div className="animate-pulse bg-gray-200 rounded-lg h-64 w-full"></div>
   );
 
+  const joinCommunity = async (communityId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/community/${communityId}/join`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.requestNotification) {
+        await subscribeToPushNotifications();
+      }
+      // Update UI to reflect joined community
+    } catch (error) {
+      console.error('Error joining community:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       {showNotificationCarousel && (
