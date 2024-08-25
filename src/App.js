@@ -8,9 +8,12 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import CreateCommunity from './components/CreateCommunity';
 import CommunityView from './components/CommunityView';
+import About from './components/About';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import PostDetail from './components/PostDetail';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 import JoinCommunity from './components/JoinCommunity';
 import AppLaunch from './components/AppLaunch';
 
@@ -50,7 +53,7 @@ function AppContent() {
   const handleCredentialResponse = async (response) => {
     try {
       const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-one-tap`, {
-        credential: response.credential,
+        token: response.credential,
       });
       setUser(res.data.user);
       localStorage.setItem('token', res.data.token);
@@ -58,6 +61,8 @@ function AppContent() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Google One Tap error:', error);
+      // You might want to show an error message to the user here
+      // For example, using a toast notification or setting an error state
     }
   };
 
@@ -89,6 +94,10 @@ function AppContent() {
           </PrivateRoute>
         } />
         <Route path="/app-launch" element={<AppLaunch />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/tos" element={<TermsOfService />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </div>
   );

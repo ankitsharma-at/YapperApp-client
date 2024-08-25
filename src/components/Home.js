@@ -87,7 +87,7 @@ function Home() {
         )}
       </nav>
 
-      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 min-h-screen">
         <div className="text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-thin mb-6 leading-tight">
             Unleash Your Thoughts,<br />Embrace <span className="font-bold anonymity-text">Anonymity</span>
@@ -103,6 +103,36 @@ function Home() {
           </div>
         </div>
       </main>
+
+      <footer className="bg-black text-white py-8 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-between">
+            <div className="w-full md:w-1/3 mb-6 md:mb-0">
+              <h3 className="text-2xl font-bold mb-4">YapperApp</h3>
+              <p className="text-sm">Connect, share, and engage with communities.</p>
+            </div>
+            <div className="w-full md:w-1/3 mb-6 md:mb-0">
+              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li><Link to="/" className="hover:text-caribbean-green transition-colors">Home</Link></li>
+                <li><Link to="/about" className="hover:text-caribbean-green transition-colors">About</Link></li>
+                <li><Link to="/features" className="hover:text-caribbean-green transition-colors">Features</Link></li>
+                <li><Link to="/contact" className="hover:text-caribbean-green transition-colors">Contact</Link></li>
+              </ul>
+            </div>
+            <div className="w-full md:w-1/3">
+              <h4 className="text-lg font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link to="/privacy" className="hover:text-caribbean-green transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/tos" className="hover:text-caribbean-green transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 text-center text-sm">
+            <p>&copy; {new Date().getFullYear()} YapperApp. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

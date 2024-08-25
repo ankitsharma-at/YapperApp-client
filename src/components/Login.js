@@ -12,7 +12,6 @@ function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const validateInputs = () => {
     if (!emailOrUsername.trim()) {
@@ -33,12 +32,13 @@ function Login() {
     setIsLoading(true);
     setError('');
     try {
-      const userData = await login(emailOrUsername, password);
-      if (userData.user) {
-        navigate('/dashboard');
-      } else {
-        setError('Login failed. Please try again.');
-      }
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/login`, {
+        emailOrUsername,
+        password
+      });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.user._id);
+      navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || 'Failed to log in. Please check your credentials and try again.');
@@ -51,7 +51,7 @@ function Login() {
     onSuccess: async (tokenResponse) => {
       try {
         const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-login`, {
-          token: tokenResponse.id_token,
+          token: tokenResponse.access_token,
         });
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('userId', res.data.user._id);
@@ -65,7 +65,6 @@ function Login() {
       console.error('Google Login Failed');
       setError('Google login failed. Please try again.');
     },
-    flow: 'auth-code',
   });
 
   return (
