@@ -18,14 +18,8 @@ function Signup() {
   const handleGoogleSignup = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const userInfo = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
         const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-signup`, {
-          googleId: userInfo.data.sub,
-          email: userInfo.data.email,
-          name: userInfo.data.name,
-          picture: userInfo.data.picture,
+          token: tokenResponse.access_token,
         });
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('userId', res.data.user._id);
@@ -39,7 +33,6 @@ function Signup() {
       console.error('Google Signup Failed');
       setError('Google signup failed. Please try again.');
     },
-    flow: 'auth-code',
   });
 
   const validateUsername = (value) => {
