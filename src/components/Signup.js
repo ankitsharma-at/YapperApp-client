@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
+import { useGoogleLogin } from '@react-oauth/google';
 
 function Signup() {
   const [username, setUsername] = useState('');
@@ -13,6 +14,33 @@ function Signup() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
+
+  const handleGoogleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const userInfo = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-signup`, {
+          googleId: userInfo.data.sub,
+          email: userInfo.data.email,
+          name: userInfo.data.name,
+          picture: userInfo.data.picture,
+        });
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userId', res.data.user._id);
+        navigate('/dashboard');
+      } catch (err) {
+        console.error('Google signup error:', err);
+        setError('Failed to sign up with Google. Please try again.');
+      }
+    },
+    onError: () => {
+      console.error('Google Signup Failed');
+      setError('Google signup failed. Please try again.');
+    },
+    flow: 'auth-code',
+  });
 
   const validateUsername = (value) => {
     if (value.length < 8) {
@@ -150,6 +178,17 @@ function Signup() {
               {isLoading ? 'Signing up...' : 'Sign Up'}
             </button>
           </form>
+          <div className="my-6 flex items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-gray-600">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          <button
+            onClick={handleGoogleSignup}
+            className="w-full bg-white text-gray-700 font-bold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-100 transition duration-300"
+          >
+            Sign up with Google
+          </button>
           <p className="mt-4 text-center text-gray-600">
             Already have an account?{' '}
             <Link to="/login" className="text-caribbean-green hover:underline">

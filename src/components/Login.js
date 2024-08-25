@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
+import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 
 function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState('');
@@ -43,6 +45,27 @@ function Login() {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-login`, {
+          token: tokenResponse.id_token,
+        });
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userId', res.data.user._id);
+        navigate('/dashboard');
+      } catch (err) {
+        console.error('Google login error:', err);
+        setError('Failed to login with Google. Please try again.');
+      }
+    },
+    onError: () => {
+      console.error('Google Login Failed');
+      setError('Google login failed. Please try again.');
+    },
+    flow: 'auth-code',
+  });
 
   return (
     <div className="min-h-screen bg-home-image bg-cover bg-center">
@@ -88,6 +111,17 @@ function Login() {
               {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
+          <div className="my-6 flex items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-gray-600">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full bg-white text-gray-700 font-bold py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-100 transition duration-300"
+          >
+            Login with Google
+          </button>
           <p className="mt-4 text-center text-gray-600">
             Don't have an account?{' '}
             <Link to="/signup" className="text-caribbean-green hover:underline">
