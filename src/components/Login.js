@@ -51,7 +51,7 @@ function Login() {
     onSuccess: async (tokenResponse) => {
       try {
         const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-login`, {
-          token: tokenResponse.access_token,
+          access_token: tokenResponse.access_token,
         });
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('userId', res.data.user._id);

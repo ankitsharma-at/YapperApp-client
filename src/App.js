@@ -53,7 +53,7 @@ function AppContent() {
   const handleCredentialResponse = async (response) => {
     try {
       const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/auth/google-one-tap`, {
-        token: response.credential,
+        credential: response.credential,
       });
       setUser(res.data.user);
       localStorage.setItem('token', res.data.token);
