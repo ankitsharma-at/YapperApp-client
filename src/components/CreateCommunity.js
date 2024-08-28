@@ -1,35 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCommunity } from '../utils/api';
 import Navbar from './Navbar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faGlobe, faLock } from '@fortawesome/free-solid-svg-icons';
 
 function CreateCommunity() {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [profileImage, setProfileImage] = useState(null);
-  const [bannerImage, setBannerImage] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    profileImage: null,
+    bannerImage: null,
+    isPrivate: false
+  });
   const [error, setError] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const profileInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, files } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: type === 'file' ? files[0] : value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('description', description);
-      if (profileImage) {
-        formData.append('profileImage', profileImage);
-      }
-      if (bannerImage) {
-        formData.append('bannerImage', bannerImage);
-      }
-      formData.append('isPrivate', isPrivate);
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
 
       const token = localStorage.getItem('token');
-      const response = await createCommunity(formData, token);
+      const response = await createCommunity(formDataToSend, token);
       navigate(`/community/${response._id}`);
     } catch (err) {
       console.error('Error creating community:', err);
@@ -46,40 +56,109 @@ function CreateCommunity() {
         <div className="w-full max-w-md bg-white bg-opacity-20 backdrop-blur-md p-8 rounded-lg shadow-lg">
           <h1 className="text-3xl font-bold text-center mb-6 text-caribbean-green">Create a New Community</h1>
           {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-white text-sm font-medium mb-2">Community Name</label>
-              <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green" />
+            <div className="relative h-48 bg-gray-300 rounded-t-lg overflow-hidden">
+              {formData.bannerImage ? (
+                <img src={URL.createObjectURL(formData.bannerImage)} alt="Banner" className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <FontAwesomeIcon icon={faCamera} className="text-4xl text-gray-500" />
+                </div>
+              )}
+              <input
+                type="file"
+                id="bannerImage"
+                name="bannerImage"
+                onChange={handleInputChange}
+                className="hidden"
+                ref={bannerInputRef}
+              />
+              <label htmlFor="bannerImage" className="absolute top-2 right-2 bg-white p-2 rounded-full cursor-pointer">
+                <FontAwesomeIcon icon={faCamera} />
+              </label>
+              <div className="absolute bottom-0 left-0 w-24 h-24 mb-[.5rem] ml-2">
+                <div 
+                  className="w-full h-full bg-gray-300 rounded-full overflow-hidden border-2 border-white cursor-pointer"
+                  onClick={() => profileInputRef.current.click()}
+                >
+                  {formData.profileImage ? (
+                    <img src={URL.createObjectURL(formData.profileImage)} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <FontAwesomeIcon icon={faCamera} className="text-3xl text-gray-500" />
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  id="profileImage"
+                  name="profileImage"
+                  onChange={handleInputChange}
+                  className="hidden"
+                  ref={profileInputRef}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="description" className="block text-white text-sm font-medium mb-2">Description</label>
-              <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green" />
+
+            <div className="mt-12">
+              <input 
+                type="text" 
+                id="name" 
+                name="name"
+                value={formData.name} 
+                onChange={handleInputChange} 
+                placeholder="Community Name"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green" 
+              />
             </div>
+
+            <textarea 
+              id="description" 
+              name="description"
+              value={formData.description} 
+              onChange={handleInputChange} 
+              placeholder="Community Description"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green" 
+            />
+
             <div>
-              <label htmlFor="profileImage" className="block text-white text-sm font-medium mb-2">Profile Image</label>
-              <input type="file" id="profileImage" onChange={(e) => setProfileImage(e.target.files[0])} 
-                className="w-full text-white" />
+              <h3 className="text-lg font-semibold mb-2">Community Visibility</h3>
+              <div className="flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, isPrivate: false }))}
+                  className={`flex-1 py-2 px-4 rounded-full ${
+                    !formData.isPrivate 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
+                  } transition-colors duration-300`}
+                >
+                  <FontAwesomeIcon icon={faGlobe} className="mr-2" />
+                  Public
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, isPrivate: true }))}
+                  className={`flex-1 py-2 px-4 rounded-full ${
+                    formData.isPrivate 
+                      ? 'bg-red-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
+                  } transition-colors duration-300`}
+                >
+                  <FontAwesomeIcon icon={faLock} className="mr-2" />
+                  Private
+                </button>
+              </div>
             </div>
-            <div>
-              <label htmlFor="bannerImage" className="block text-white text-sm font-medium mb-2">Banner Image</label>
-              <input type="file" id="bannerImage" onChange={(e) => setBannerImage(e.target.files[0])} 
-                className="w-full text-white" />
-            </div>
-            <div>
-              <label htmlFor="isPrivate" className="block text-white text-sm font-medium mb-2">Community Privacy</label>
-              <select
-                id="isPrivate"
-                value={isPrivate}
-                onChange={(e) => setIsPrivate(e.target.value === 'true')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-caribbean-green"
-              >
-                <option value="false">Public</option>
-                <option value="true">Private</option>
-              </select>
-            </div>
-            <button type="submit" disabled={isLoading} className="w-full bg-black text-white font-bold py-2 px-4 rounded-md transition duration-300 hover:bg-caribbean-green hover:text-black hover:shadow-lg hover:shadow-caribbean-green/50">
+
+            <button 
+              type="submit" 
+              disabled={isLoading} 
+              className="w-full bg-black text-white font-bold py-2 px-4 rounded-md transition duration-300 hover:bg-caribbean-green hover:text-black hover:shadow-lg hover:shadow-caribbean-green/50"
+            >
               {isLoading ? 'Creating...' : 'Create Community'}
             </button>
           </form>

@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbsUp, faThumbsDown, faComment, faShare, faThumbTack } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
-function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
+function Post({ post, updatePost, deletePost, isAdmin }) {
   const [isLiked, setIsLiked] = useState(post.likedBy.includes(localStorage.getItem('userId')));
   const [isDisliked, setIsDisliked] = useState(post.dislikedBy.includes(localStorage.getItem('userId')));
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(post.content);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const isAuthor = post.author && localStorage.getItem('userId') === post.author._id;
   const authorName = post.isAnonymous ? 'Anonymous' : (post.author ? post.author.username : 'Unknown');
 
-  const handleLike = async () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(post.title);
+  const [editedContent, setEditedContent] = useState(post.content);
+
+  const handleLike = async (e) => {
+    e.stopPropagation();
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}/like`, {}, {
@@ -26,14 +35,13 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       if (updatePost) {
         updatePost(response.data);
       }
-     // window.location.reload();
-     // window.scrollTo(0, window.pageYOffset);
     } catch (error) {
       console.error('Error liking post:', error);
     }
   };
 
-  const handleDislike = async () => {
+  const handleDislike = async (e) => {
+    e.stopPropagation();
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}/dislike`, {}, {
@@ -46,48 +54,45 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
       if (updatePost) {
         updatePost(response.data);
       }
-      //window.location.reload();
-      //window.scrollTo(0, window.pageYOffset);
     } catch (error) {
       console.error('Error disliking post:', error);
     }
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
+  const handlePostClick = () => {
+    navigate(`/post/${post._id}`, { state: { post } });
   };
 
-  const handleSaveEdit = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}`, 
-        { content: editedContent },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (updatePost) {
-        updatePost(response.data);
+  const handleCommentClick = (e) => {
+    e.stopPropagation();
+    navigate(`/post/${post._id}`, { state: { post, scrollToComments: true } });
+  };
+
+  const handleShareClick = async (e) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/post/${post._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: `Check out this post on YapperApp: ${post.title}`,
+          url: shareUrl
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+        fallbackCopyToClipboard(shareUrl);
       }
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error editing post:', error);
-      alert('Failed to edit post: ' + (error.response?.data?.message || error.message));
+    } else {
+      fallbackCopyToClipboard(shareUrl);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      console.log('Attempting to delete post:', post._id);
-      await axios.delete(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (deletePost) {
-        deletePost(post._id);
-      }
-    } catch (error) {
-      console.error('Error deleting post:', error.response?.data || error.message);
-      alert('Failed to delete post: ' + (error.response?.data?.message || error.message));
-    }
+  const fallbackCopyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Post link copied to clipboard!');
+    }, (err) => {
+      console.error('Could not copy text: ', err);
+    });
   };
 
   const truncateContent = (content, maxLength) => {
@@ -95,67 +100,153 @@ function Post({ post, isDetailView = false, updatePost, deletePost, isAdmin }) {
     return content.slice(0, maxLength) + '...';
   };
 
+  const handleTogglePin = async (e) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}/pin`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (updatePost) {
+        updatePost(response.data);
+      }
+    } catch (error) {
+      console.error('Error toggling pin status:', error);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/api/post/${post._id}`, {
+        title: editedTitle,
+        content: editedContent
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (updatePost) {
+        updatePost(response.data);
+      }
+      setIsEditing(false);
+      // Update local state to reflect changes
+      setEditedTitle(response.data.title);
+      setEditedContent(response.data.content);
+    } catch (error) {
+      console.error('Error updating post:', error);
+    }
+  };
+
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-4">
-      <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+    <div 
+      className={`bg-white shadow-md rounded-lg p-6 mb-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${post.isPinned ? 'border-2 border-yellow-500' : ''}`}
+      onClick={isEditing ? undefined : handlePostClick}
+    >
       {isEditing ? (
-        <textarea
-          value={editedContent}
-          onChange={(e) => setEditedContent(e.target.value)}
-          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-          rows="4"
-        />
+        <form onSubmit={handleEditSubmit} onClick={(e) => e.stopPropagation()} className="space-y-4">
+          <input
+            type="text"
+            value={editedTitle}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
+          <textarea
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+            rows="4"
+            required
+          />
+          <div className="flex justify-end space-x-2">
+            <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">Save</button>
+          </div>
+        </form>
       ) : (
-        <p className="text-gray-600 mb-4">
-          {isDetailView ? post.content : truncateContent(post.content, 150)}
-        </p>
+        <>
+          {post.isPinned && (
+            <div className="flex items-center text-yellow-500 mb-2">
+              <FontAwesomeIcon icon={faThumbTack} className="mr-2" />
+              <span className="font-semibold">Pinned Post</span>
+            </div>
+          )}
+          <h2 className="text-xl font-bold mb-2">{isEditing ? editedTitle : post.title}</h2>
+          <p className="text-gray-600 mb-4">
+            {isEditing ? editedContent : truncateContent(post.content, 150)}
+          </p>
+          <div className="flex justify-between items-center">
+            <p className="text-gray-500 text-sm">
+              Posted by {authorName} on {new Date(post.createdAt).toLocaleString()}
+            </p>
+          </div>
+          <div className="mt-4 flex justify-between items-center">
+            <div className="flex space-x-4">
+              <button 
+                onClick={handleLike}
+                className={`flex items-center ${isLiked ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-500`}
+              >
+                <FontAwesomeIcon icon={faThumbsUp} className="mr-1" />
+                {post.likedBy.length}
+              </button>
+              <button 
+                onClick={handleDislike}
+                className={`flex items-center ${isDisliked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
+              >
+                <FontAwesomeIcon icon={faThumbsDown} className="mr-1" />
+                {post.dislikedBy.length}
+              </button>
+              <button 
+                onClick={handleCommentClick}
+                className="flex items-center text-gray-500 hover:text-blue-500"
+              >
+                <FontAwesomeIcon icon={faComment} className="mr-1" />
+                {post.comments ? post.comments.length : 0}
+              </button>
+              <button 
+                onClick={handleShareClick}
+                className="flex items-center text-gray-500 hover:text-green-500"
+              >
+                <FontAwesomeIcon icon={faShare} />
+              </button>
+            </div>
+            {(isAuthor || isAdmin) && (
+              <div className="flex space-x-2">
+                {isAdmin && (
+                  <button
+                    onClick={handleTogglePin}
+                    className={`mr-2 ${post.isPinned ? 'text-yellow-500' : 'text-gray-500'} hover:text-yellow-500`}
+                    title={post.isPinned ? 'Unpin Post' : 'Pin Post'}
+                  >
+                    <FontAwesomeIcon icon={faThumbTack} />
+                  </button>
+                )}
+                {isAuthor && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                    className="text-blue-500 hover:text-blue-700"
+                    title="Edit Post"
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                )}
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deletePost(post._id); }} 
+                  className="text-red-500 hover:text-red-700"
+                  title="Delete Post"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
-      <div className="flex justify-between items-center">
-        <p className="text-gray-500 text-sm">
-          Posted by {authorName} on {new Date(post.createdAt).toLocaleString()}
-        </p>
-        {!isDetailView && (
-          <Link to={`/post/${post._id}`} className="text-blue-500 hover:underline">
-            Read more
-          </Link>
-        )}
-      </div>
-      <div className="mt-4 flex justify-between items-center">
-        <div>
-          <button 
-            onClick={handleLike}
-            className={`mr-2 ${isLiked ? 'text-blue-500' : 'text-gray-500'} hover:text-blue-500`}
-          >
-            ▲ {post.likedBy.length}
-          </button>
-          <button 
-            onClick={handleDislike}
-            className={`mr-2 ${isDisliked ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
-          >
-            ▼ {post.dislikedBy.length}
-          </button>
-        </div>
-        <div>
-          {isAuthor && (
-            <>
-              {isEditing ? (
-                <button onClick={handleSaveEdit} className="text-green-500 hover:text-green-700 mr-2">
-                  Save
-                </button>
-              ) : (
-                <button onClick={handleEdit} className="text-blue-500 hover:text-blue-700 mr-2">
-                  Edit
-                </button>
-              )}
-            </>
-          )}
-          {(isAuthor || isAdmin) && (
-            <button onClick={handleDelete} className="text-red-500 hover:text-red-700">
-              Delete
-            </button>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

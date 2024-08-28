@@ -97,7 +97,6 @@ function AppContent() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/tos" element={<TermsOfService />} />
         <Route path="/about" element={<About />} />
-        <Route path="/about" element={<About />} />
       </Routes>
     </div>
   );

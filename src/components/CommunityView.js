@@ -6,7 +6,7 @@ import Post from './Post';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faShare, faPlus, faUserPlus, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faShare, faPlus, faUserPlus, faSignOutAlt, faGlobe, faLock } from '@fortawesome/free-solid-svg-icons';
 
 function CommunityView() {
   const [community, setCommunity] = useState(null);
@@ -71,8 +71,7 @@ function CommunityView() {
   };
 
   const updatePost = (updatedPost) => {
-    setPosts(posts.map(post => post._id === updatedPost._id ? updatedPost : post));
-    window.location.reload(); // Refresh the page
+    setPosts(prevPosts => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
   };
 
   const deletePost = async (postId) => {
@@ -205,7 +204,13 @@ function CommunityView() {
           <div className="mt-20 p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h1 className="text-3xl font-bold">{community.name}</h1>
+                <h1 className="text-3xl font-bold flex items-center">
+                  {community.name}
+                  <FontAwesomeIcon 
+                    icon={community.isPrivate ? faLock : faGlobe} 
+                    className={`ml-2 ${community.isPrivate ? 'text-gray-500' : 'text-gray-500'} text-sm`}
+                  />
+                </h1>
                 <p className="text-gray-600 mt-2">{community.description}</p>
               </div>
               <div className="flex space-x-2">
@@ -253,8 +258,16 @@ function CommunityView() {
                 <textarea
                   value={editedCommunity.description}
                   onChange={(e) => setEditedCommunity({...editedCommunity, description: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border rounded-md mb-2"
                 />
+                <div className="flex justify-end">
+                  <button 
+                    onClick={handleSaveEdit} 
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -305,9 +318,11 @@ function CommunityView() {
           )}
           <div className="space-y-6">
             {posts.length > 0 ? (
-              posts.map(post => (
-                <Post key={post._id} post={post} updatePost={updatePost} deletePost={deletePost} isAdmin={isAdmin} />
-              ))
+              posts
+                .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0))
+                .map(post => (
+                  <Post key={post._id} post={post} updatePost={updatePost} deletePost={deletePost} isAdmin={isAdmin} isAuthor={post.author && post.author._id === userId} />
+                ))
             ) : (
               <div className="bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-xl font-bold mb-2">Be the First to Post!</h3>
