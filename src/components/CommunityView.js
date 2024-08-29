@@ -6,12 +6,12 @@ import Post from './Post';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faShare, faPlus, faUserPlus, faSignOutAlt, faGlobe, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faShare, faPlus, faUserPlus, faSignOutAlt, faGlobe, faLock, faCloudUploadAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 function CommunityView() {
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ title: '', content: '', isAnonymous: false });
+  const [newPost, setNewPost] = useState({ title: '', content: '', isAnonymous: false, media: null, postType: 'text' });
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editedCommunity, setEditedCommunity] = useState(null);
@@ -22,6 +22,7 @@ function CommunityView() {
   const [userId, setUserId] = useState(localStorage.getItem('userId'));
   const [inviteCode, setInviteCode] = useState('');
   const [isMember, setIsMember] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchCommunity = async () => {
@@ -47,26 +48,38 @@ function CommunityView() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('title', newPost.title);
+      formData.append('isAnonymous', newPost.isAnonymous);
+      formData.append('postType', newPost.postType);
 
-      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${id}`, {
-        title: newPost.title,
-        content: newPost.content,
-        isAnonymous: newPost.isAnonymous
-      }, {
+      if (newPost.postType === 'text') {
+        formData.append('content', newPost.content);
+      } else if (newPost.postType === 'media' && newPost.media) {
+        formData.append('media', newPost.media);
+      } else {
+        throw new Error('Invalid post type or missing media');
+      }
+
+      const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/api/post/${id}`, formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         },
       });
       console.log('New post created:', response.data);
-      setNewPost({ title: '', content: '', isAnonymous: false });
+      setNewPost({ title: '', content: '', isAnonymous: false, media: null, postType: 'text' });
       setShowCreatePost(false);
-      window.location.reload(); // Refresh the page
+      window.location.reload();
     } catch (err) {
       console.error('Error creating post:', err);
       setError('Failed to create post: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -293,13 +306,93 @@ function CommunityView() {
                 className="w-full px-3 py-2 border rounded-md"
                 required
               />
-              <textarea
-                value={newPost.content}
-                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                placeholder="Post Content"
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
+              <div className="flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setNewPost({ ...newPost, postType: 'text' })}
+                  className={`flex-1 py-2 px-4 rounded-full ${
+                    newPost.postType === 'text' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
+                  } transition-colors duration-300`}
+                >
+                  Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewPost({ ...newPost, postType: 'media' })}
+                  className={`flex-1 py-2 px-4 rounded-full ${
+                    newPost.postType === 'media' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 text-gray-700'
+                  } transition-colors duration-300`}
+                >
+                  Media
+                </button>
+              </div>
+              {newPost.postType === 'text' ? (
+                <textarea
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  placeholder="Post Content"
+                  className="w-full px-3 py-2 border rounded-md"
+                  required
+                />
+              ) : (
+                <div className="border rounded-md p-4">
+                  {newPost.media ? (
+                    <div className="relative">
+                      {newPost.media.type.startsWith('image/') ? (
+                        <img
+                          src={URL.createObjectURL(newPost.media)}
+                          alt="Uploaded media"
+                          className="max-w-full h-auto rounded-md"
+                          style={{ maxHeight: '300px', width: 'auto' }}
+                        />
+                      ) : (
+                        <video
+                          src={URL.createObjectURL(newPost.media)}
+                          controls
+                          className="max-w-full h-auto rounded-md"
+                          style={{ maxHeight: '300px', width: 'auto' }}
+                        />
+                      )}
+                      <button
+                        onClick={() => setNewPost({ ...newPost, media: null })}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <label htmlFor="media-upload" className="cursor-pointer">
+                        <div className="border-2 border-dashed border-gray-300 rounded-md p-8">
+                          <FontAwesomeIcon icon={faCloudUploadAlt} className="text-4xl text-gray-400 mb-2" />
+                          <p className="text-gray-500">Click to upload image or video</p>
+                          <p className="text-sm text-gray-400 mt-1">Max file size: 30MB. Supported formats: JPG, PNG, MP4, MOV</p>
+                        </div>
+                      </label>
+                      <input
+                        id="media-upload"
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 30 * 1024 * 1024) {
+                              alert('File size exceeds 30MB limit');
+                            } else {
+                              setNewPost({ ...newPost, media: file });
+                            }
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <label className="inline-flex items-center">
                   <input
@@ -311,8 +404,12 @@ function CommunityView() {
                   <span className="ml-2">Post Anonymously</span>
                 </label>
               </div>
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                Create Post
+              <button 
+                type="submit" 
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating...' : 'Create Post'}
               </button>
             </form>
           )}
@@ -321,7 +418,14 @@ function CommunityView() {
               posts
                 .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0))
                 .map(post => (
-                  <Post key={post._id} post={post} updatePost={updatePost} deletePost={deletePost} isAdmin={isAdmin} isAuthor={post.author && post.author._id === userId} />
+                  <Post 
+                    key={post._id} 
+                    post={{...post, content: post.content || ''}} 
+                    updatePost={updatePost} 
+                    deletePost={deletePost} 
+                    isAdmin={isAdmin} 
+                    isAuthor={post.author && post.author._id === userId} 
+                  />
                 ))
             ) : (
               <div className="bg-white shadow-md rounded-lg p-6">

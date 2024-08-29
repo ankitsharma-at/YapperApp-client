@@ -95,9 +95,10 @@ function Post({ post, updatePost, deletePost, isAdmin }) {
     });
   };
 
-  const truncateContent = (content, maxLength) => {
-    if (content.length <= maxLength) return content;
-    return content.slice(0, maxLength) + '...';
+  const truncateContent = (text, maxLength) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
   };
 
   const handleTogglePin = async (e) => {
@@ -178,8 +179,24 @@ function Post({ post, updatePost, deletePost, isAdmin }) {
           )}
           <h2 className="text-xl font-bold mb-2">{isEditing ? editedTitle : post.title}</h2>
           <p className="text-gray-600 mb-4">
-            {isEditing ? editedContent : truncateContent(post.content, 150)}
+            {isEditing ? editedContent : truncateContent(post.content || '', 150)}
           </p>
+          {post.media && post.media.length > 0 && (
+            <div className="mt-4">
+              {post.media.map((item, index) => (
+                <div key={index} className="mb-2">
+                  {item.type === 'image' ? (
+                    <img src={item.url} alt={`Post media ${index + 1}`} className="max-w-full h-auto rounded-lg" />
+                  ) : item.type === 'video' ? (
+                    <video controls className="max-w-full h-auto rounded-lg">
+                      <source src={item.url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <p className="text-gray-500 text-sm">
               Posted by {authorName} on {new Date(post.createdAt).toLocaleString()}
