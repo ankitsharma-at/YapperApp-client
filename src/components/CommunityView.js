@@ -222,10 +222,6 @@ function CommunityView() {
               <div>
                 <h1 className="text-3xl font-bold flex items-center">
                   {community.name}
-                  <FontAwesomeIcon 
-                    icon={community.isPrivate ? faLock : faGlobe} 
-                    className={`ml-2 ${community.isPrivate ? 'text-gray-500' : 'text-gray-500'} text-sm`}
-                  />
                 </h1>
                 <p className="text-gray-600 mt-2">{community.description}</p>
               </div>

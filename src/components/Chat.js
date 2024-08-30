@@ -202,59 +202,65 @@ function Chat({ communityId }) {
         <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSendMessage} className="p-4 bg-white border-t">
-        {replyTo && (
-          <div className="text-sm text-gray-600 mb-2">
-            Replying to: {replyTo.content.substring(0, 50)}...
-            <button onClick={() => setReplyTo(null)} className="ml-2 text-red-500">Cancel</button>
-          </div>
-        )}
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-grow mr-2 p-2 border rounded-md"
-            placeholder="Type a message..."
-          />
-          <label htmlFor="file-upload" className="cursor-pointer mr-2 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
-            <FontAwesomeIcon icon={faFile} />
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            accept="image/*,video/*,.pdf,.doc,.docx"
-          />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
-            <FontAwesomeIcon icon={faPaperPlane} />
-          </button>
-        </div>
-        {file && (
-          <div className="mt-2 flex items-center">
-            <FontAwesomeIcon 
-              icon={file.type.startsWith('image/') ? faImage : file.type.startsWith('video/') ? faVideo : faFile} 
-              className="mr-2"
-            />
-            <span className="text-sm">{file.name}</span>
-            <button onClick={() => setFile(null)} className="ml-2 text-red-500">
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-        )}
-        <div className="flex items-center mt-2">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isAnonymous}
-              onChange={() => setIsAnonymous(!isAnonymous)}
-              className="mr-2"
-            />
-            <FontAwesomeIcon icon={faUser} className="mr-1" />
-            Anonymous
-          </label>
-        </div>
-      </form>
+  {replyTo && (
+    <div className="text-sm text-gray-600 mb-2">
+      Replying to: {replyTo.content.substring(0, 50)}...
+      <button onClick={() => setReplyTo(null)} className="ml-2 text-red-500">Cancel</button>
+    </div>
+  )}
+  <div className="flex items-center">
+    <textarea
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      className="flex-grow mr-2 p-2 border rounded-md resize-none"
+      placeholder="Type a message..."
+      rows="1"
+      style={{ minHeight: '40px', maxHeight: '150px', overflowY: 'auto' }}
+      onInput={(e) => {
+        e.target.style.height = 'auto';
+        e.target.style.height = `${e.target.scrollHeight}px`;
+      }}
+    />
+    <label htmlFor="file-upload" className="cursor-pointer mr-2 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
+      <FontAwesomeIcon icon={faFile} />
+    </label>
+    <input
+      id="file-upload"
+      type="file"
+      onChange={handleFileChange}
+      className="hidden"
+      accept="image/*,video/*,.pdf,.doc,.docx"
+    />
+    <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
+      <FontAwesomeIcon icon={faPaperPlane} />
+    </button>
+  </div>
+  {file && (
+    <div className="mt-2 flex items-center">
+      <FontAwesomeIcon 
+        icon={file.type.startsWith('image/') ? faImage : file.type.startsWith('video/') ? faVideo : faFile} 
+        className="mr-2"
+      />
+      <span className="text-sm">{file.name}</span>
+      <button onClick={() => setFile(null)} className="ml-2 text-red-500">
+        <FontAwesomeIcon icon={faTrash} />
+      </button>
+    </div>
+  )}
+  <div className="flex items-center mt-2">
+    <label className="flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        checked={isAnonymous}
+        onChange={() => setIsAnonymous(!isAnonymous)}
+        className="mr-2"
+      />
+      <FontAwesomeIcon icon={faUser} className="mr-1" />
+      Be Anonymous
+    </label>
+  </div>
+</form>
+
     </div>
   );
 }
