@@ -28,7 +28,7 @@ code {
 }
 
 .bg-home-image {
-  background-image: var(--bg-image);
+  background-image: linear-gradient(to top right , #043126,black, black  );
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
