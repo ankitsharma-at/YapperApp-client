@@ -37,4 +37,4 @@ function promptInstall() {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<ErrorBoundary><App /></ErrorBoundary>);
+root.render(<App />);
