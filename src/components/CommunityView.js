@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import io from 'socket.io-client';
+import Preloader from './Preloader';
 import Post from './Post';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './Navbar';
@@ -202,7 +203,7 @@ function CommunityView() {
     }
   };
 
-  if (!community) return <div className="text-center">Loading...</div>;
+  if (!community) return <Preloader />;
 
   const isAdmin = userId && community.admin === userId;
 
