@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import bigScreenImage from '../assets/download.svg';
-import smallScreenImage from '../assets/download(1).svg';
 
 function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -23,12 +23,12 @@ code {
 }
 
 :root {
-  --bg-image:linear-gradient(to top right , #043126,black, black  ); 
-  --bg-image-mobile:linear-gradient(to top right , #043126,black, black  ); 
+  --bg-image: url('./assets/download.svg');
+  --bg-image-mobile: url('./assets/download.svg');
 }
 
 .bg-home-image {
-  background-image: var(--bg-image);
+  background-image: linear-gradient(to top right , #043126,black, black  );
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -39,7 +39,7 @@ code {
 
 @media (max-width: 768px) {
   .bg-home-image {
-    background-image: var(--bg-image-mobile);
+    background-image: linear-gradient(to top right , #043126,black, black  );
     background-size: cover;
   }
 }

@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Home from './components/Home';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Dashboard from './components/Dashboard';
-import CreateCommunity from './components/CreateCommunity';
-import CommunityView from './components/CommunityView';
-import About from './components/About';
 import PrivateRoute from './components/PrivateRoute';
+import Preloader from './components/Preloader';
 import { AuthProvider } from './contexts/AuthContext';
-import PostDetail from './components/PostDetail';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import TermsOfService from './components/TermsOfService';
-import JoinCommunity from './components/JoinCommunity';
-import AppLaunch from './components/AppLaunch';
+const Home = lazy(() => import('./components/Home'));
+const Login = lazy(() => import('./components/Login'));
+const Signup = lazy(() => import('./components/Signup'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const CreateCommunity = lazy(() => import('./components/CreateCommunity'));
+const CommunityView = lazy(() => import('./components/CommunityView'));
+const About = lazy(() => import('./components/About'));
+const PostDetail = lazy(() => import('./components/PostDetail'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/TermsOfService'));
+const JoinCommunity = lazy(() => import('./components/JoinCommunity'));
+const AppLaunch = lazy(() => import('./components/AppLaunch'));
 
 function AppContent() {
   const [user, setUser] = useState(null);
@@ -107,7 +108,9 @@ function App() {
     <Router>
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <AuthProvider>
+        <Suspense fallback={<Preloader />}>
           <AppContent />
+          </Suspense>
         </AuthProvider>
       </GoogleOAuthProvider>
     </Router>

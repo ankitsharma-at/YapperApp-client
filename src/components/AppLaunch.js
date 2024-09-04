@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Preloader from './Preloader';
 
 function AppLaunch() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ function AppLaunch() {
   }, [navigate]);
 
   return (
-    <div>Loading...</div>
+    <Preloader />
   );
 }
 
