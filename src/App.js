@@ -21,7 +21,7 @@ function AppContent() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  /*useEffect(() => {
+  useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       window.deferredPrompt = e;
@@ -64,7 +64,7 @@ function AppContent() {
       // You might want to show an error message to the user here
       // For example, using a toast notification or setting an error state
     }
-  };*/
+  };
 
   return (
     <div className="App">
