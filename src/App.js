@@ -2,6 +2,8 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './contexts/AuthContext';
 const Home = lazy(() => import('./components/Home'));
 const Login = lazy(() => import('./components/Login'));
 const Signup = lazy(() => import('./components/Signup'));
@@ -14,9 +16,6 @@ const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./components/TermsOfService'));
 const JoinCommunity = lazy(() => import('./components/JoinCommunity'));
 const AppLaunch = lazy(() => import('./components/AppLaunch'));
-
-import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './contexts/AuthContext';
 
 function AppContent() {
   const [user, setUser] = useState(null);
