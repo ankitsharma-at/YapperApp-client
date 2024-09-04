@@ -1,6 +1,21 @@
-self.addEventListener('install', (event) => {
-    console.log('Service Worker installed');
-  });
+constCACHE_NAME = 'YapperApp';
+
+const urlsToCache = [
+  '/',
+  '/styles/main.css',
+  '/scripts/main.js',
+  '/logo-yapper.sm.jpg',
+];
+self.addEventListener('install', event => {
+  // Perform install steps
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
   
   self.addEventListener('activate', (event) => {
     console.log('Service Worker activated');
